@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "re-automata"
+version = "0.1.0"
+description = "Regex tools powered by automatas"
+authors = ["Alexander Viklund <bullfest@sthlm.dev>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.1.1"
+black = {extras = ["d"], version = "^20.8b1"}
+mypy = "^0.790"
+flake8 = "^3.8.4"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
