@@ -23,7 +23,23 @@ class _Lexer:
 
 
 class Regex(metaclass=ABCMeta):
-    pass
+    def __repr__(self):
+        vars = {
+            att_name: getattr(self, att_name)
+            for att_name in dir(self)
+            if not att_name.startswith("_")
+        }
+
+        var_args = ", ".join(f"{att}={repr(val)}" for att, val in vars.items())
+        return f"{self.__class__.__name__}({var_args})"
+
+    def __eq__(self, other):
+        attrs = [attr for attr in dir(self) if not attr.startswith("_")]
+
+        def attr_same(attr):
+            return hasattr(self, attr) and getattr(self, attr) == getattr(other, attr)
+
+        return isinstance(other, self.__class__) and all(map(attr_same, attrs))
 
 
 class Or(Regex):
@@ -31,104 +47,44 @@ class Or(Regex):
         self.left = left
         self.right = right
 
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Or),
-                self.left == other.left,
-                self.right == other.right,
-            )
-        )
-
 
 class Concat(Regex):
     def __init__(self, left: Regex, right: Regex):
         self.left = left
         self.right = right
 
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Concat),
-                self.left == other.left,
-                self.right == other.right,
-            )
-        )
-
 
 class Kleene(Regex):
     def __init__(self, r: Regex):
         self.r = r
-
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Kleene),
-                self.r == other.r,
-            )
-        )
 
 
 class Plus(Regex):
     def __init__(self, r: Regex):
         self.r = r
 
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Plus),
-                self.r == other.r,
-            )
-        )
-
 
 class Maybe(Regex):
     def __init__(self, r: Regex):
         self.r = r
-
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Maybe),
-                self.r == other.r,
-            )
-        )
 
 
 class Group(Regex):
     def __init__(self, r: Regex):
         self.r = r
 
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Group),
-                self.r == other.r,
-            )
-        )
-
 
 class Char(Regex):
     def __init__(self, s: str):
         self.s = s
 
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, Char),
-                self.s == other.s,
-            )
-        )
-
 
 class Any(Regex):
-    def __eq__(self, other):
-        return isinstance(other, Any)
+    pass
 
 
 class EndOfString(Regex):
-    def __eq__(self, other):
-        return isinstance(other, EndOfString)
+    pass
 
 
 class Range:
@@ -150,26 +106,10 @@ class PosSet(Regex):
     def __init__(self, items: List[Union[Char, Range]]):
         self.items = items
 
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, PosSet),
-                self.items == other.items,
-            )
-        )
-
 
 class NegSet(Regex):
     def __init__(self, items: List[Union[Char, Range]]):
         self.items = items
-
-    def __eq__(self, other):
-        return all(
-            (
-                isinstance(other, NegSet),
-                self.items == other.items,
-            )
-        )
 
 
 def _parse_re(l: _Lexer) -> Regex:
