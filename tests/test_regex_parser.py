@@ -1,3 +1,5 @@
+import pytest
+
 from re_automata.regex import from_string
 from re_automata.regex.AST import (
     Char,
@@ -14,6 +16,7 @@ from re_automata.regex.AST import (
 
 
 def test_char():
+    assert from_string("\n") == Char("\n")
     assert from_string("a") == Char("a")
     assert from_string("b") == Char("b")
     assert from_string("-") == Char("-")
@@ -47,17 +50,34 @@ def test_group_char():
     assert from_string("(a)") == Group(Char("a"))
 
 
-def test_posset():
-    assert from_string("[a]") == PosSet([Char("a")])
-    assert from_string("[-]") == PosSet([Char("-")])
-    assert from_string("[()]") == PosSet([Char("("), Char(")")])
-    assert from_string("[a-z]") == PosSet([Range("a", "z")])
-    assert from_string("[a^]") == PosSet([Char("a"), Char("^")])
+@pytest.mark.parametrize(
+    "regex,expected",
+    [
+        ("[a]", PosSet([Char("a")])),
+        ("[-]", PosSet([Char("-")])),
+        ("[()]", PosSet([Char("("), Char(")")])),
+        ("[a-z]", PosSet([Range(Char("a"), Char("z"))])),
+        ("[a^]", PosSet([Char("a"), Char("^")])),
+        ("[[]", PosSet([Char("[")])),
+        ("[\\^]", PosSet([Char("^")])),
+        ("[\\]]", PosSet([Char("]")])),
+    ],
+)
+def test_posset(regex, expected):
+    assert from_string(regex) == expected
 
 
-def test_negset():
-    assert from_string("[^a]") == NegSet([Char("a")])
-    assert from_string("[^^]") == NegSet([Char("^")])
-    assert from_string("[^-]") == NegSet([Char("-")])
-    assert from_string("[^()]") == NegSet([Char("("), Char(")")])
-    assert from_string("[^a-z]") == NegSet([Range("a", "z")])
+@pytest.mark.parametrize(
+    "regex,expected",
+    [
+        ("[^a]", NegSet([Char("a")])),
+        ("[^-]", NegSet([Char("-")])),
+        ("[^^]", NegSet([Char("^")])),
+        ("[^()]", NegSet([Char("("), Char(")")])),
+        ("[^a-z]", NegSet([Range(Char("a"), Char("z"))])),
+        ("[^[]", NegSet([Char("[")])),
+        ("[^\\]]", NegSet([Char("]")])),
+    ],
+)
+def test_negset(regex, expected):
+    assert from_string(regex) == expected
