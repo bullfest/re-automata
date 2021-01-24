@@ -1,5 +1,5 @@
+from re_automata.regex import from_string
 from re_automata.regex.AST import (
-    from_string,
     Char,
     Concat,
     Or,

@@ -209,8 +209,3 @@ def _parse_items(l: _Lexer) -> List[Union[Char, Range]]:
         items.append(Char(c))
     l.consume("]")
     return items
-
-
-def from_string(s: str) -> Regex:
-    lexer = _Lexer(s)
-    return _parse_re(lexer)
