@@ -1,8 +1,14 @@
-from abc import ABCMeta
+from enum import Enum
 from typing import List, Union
 
 
-class Regex(metaclass=ABCMeta):
+class Regex:
+    """
+    Base class for all AST-nodes.
+
+    Should be an ABC, but that causes problem with AstConstant inheriting from this class
+    """
+
     def __repr__(self):
         vars = {
             att_name: getattr(self, att_name)
@@ -59,14 +65,6 @@ class Char(Regex):
         self.s = s
 
 
-class Any(Regex):
-    pass
-
-
-class EndOfString(Regex):
-    pass
-
-
 class Range:
     def __init__(self, start: Char, end: Char):
         self.start = start
@@ -90,3 +88,9 @@ class PosSet(Regex):
 class NegSet(Regex):
     def __init__(self, items: List[Union[Char, Range]]):
         self.items = items
+
+
+class AstConstant(Regex, Enum):
+    any = 1
+    end_of_string = 2
+    epsilon = 3

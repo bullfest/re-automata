@@ -7,13 +7,12 @@ from re_automata.regex.AST import (
     Kleene,
     Plus,
     Maybe,
-    Any,
-    EndOfString,
     Group,
     PosSet,
     NegSet,
     Range,
     Regex,
+    AstConstant,
 )
 from re_automata.regex.tokens import META_CHARACTERS, _Lexer
 
@@ -81,10 +80,10 @@ def _parse_atom(l: _Lexer) -> Regex:
         return _parse_set(l)
     if l.peek() == ".":
         l.consume(".")
-        return Any()
+        return AstConstant.any
     if l.peek() == "$":
         l.consume("$")
-        return EndOfString()
+        return AstConstant.end_of_string
     return _parse_char(l)
 
 
@@ -104,7 +103,7 @@ def _parse_set(l: _Lexer) -> Union[PosSet, NegSet]:
 
 
 def _parse_items(l: _Lexer) -> List[Union[Char, Range]]:
-    items = []
+    items: List[Union[Char, Range]] = []
     while l.peek() != "]":
         c = _parse_char(l, in_set=True)
         if l.peek() == "-":
