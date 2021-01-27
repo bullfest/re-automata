@@ -32,6 +32,7 @@ def test_concat_chars():
 
 def test_or_chars():
     assert from_string("a|b") == Or(Char("a"), Char("b"))
+    assert from_string("ab|01") == Or(from_string("ab"), from_string("01"))
 
 
 def test_kleene_star_char():
